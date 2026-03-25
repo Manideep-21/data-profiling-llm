@@ -5,7 +5,31 @@ profile_to_markdown <- function(profile, title) {
     sprintf("- Rows: %d", profile$dataset$rows),
     sprintf("- Columns: %d", profile$dataset$columns),
     sprintf("- Duplicate rows: %d", profile$dataset$duplicate_rows),
-    sprintf("- Total missing values: %d", profile$dataset$total_missing),
+    sprintf("- Total missing values: %d", profile$dataset$total_missing)
+  )
+
+  if (!is.null(profile$dataset$missingness)) {
+    lines <- c(
+      lines,
+      sprintf("- Max missing values in a row: %s", profile$dataset$missingness$max_row_missing),
+      sprintf("- Average missing values per row: %s", profile$dataset$missingness$avg_row_missing)
+    )
+  }
+
+  if (!is.null(profile$dataset$feature_reduction)) {
+    constant_columns <- profile$dataset$feature_reduction$constant_columns
+    nzv_columns <- profile$dataset$feature_reduction$near_zero_variance_columns
+    suggested_drops <- profile$dataset$feature_reduction$suggested_correlation_drops
+    lines <- c(
+      lines,
+      sprintf("- Constant columns: %s", if (length(constant_columns) > 0) paste(constant_columns, collapse = ", ") else "None"),
+      sprintf("- Near-zero variance columns: %s", if (length(nzv_columns) > 0) paste(nzv_columns, collapse = ", ") else "None"),
+      sprintf("- Suggested correlated feature drops: %s", if (length(suggested_drops) > 0) paste(suggested_drops, collapse = ", ") else "None")
+    )
+  }
+
+  lines <- c(
+    lines,
     ""
   )
 
@@ -14,17 +38,33 @@ profile_to_markdown <- function(profile, title) {
       lines,
       sprintf("### %s", column$name),
       sprintf("- Type: %s", column$detected_type),
+      sprintf("- Inferred kind: %s", column$inferred_kind),
       sprintf("- Missing: %d (%.2f%%)", column$missing_count, column$missing_pct),
-      sprintf("- Unique values: %d", column$unique_count)
+      sprintf("- Unique values: %d", column$unique_count),
+      sprintf("- Uniqueness ratio: %s", column$uniqueness_ratio),
+      sprintf("- Missing drop threshold exceeded: %s", ifelse(column$nullable_risk, "Yes", "No"))
     )
 
-    if (!is.null(column$summary$mean)) {
+    if (identical(column$summary$subtype, "numeric")) {
       lines <- c(
         lines,
         sprintf("- Mean: %s", column$summary$mean),
         sprintf("- Median: %s", column$summary$median),
         sprintf("- Min / Max: %s / %s", column$summary$min, column$summary$max),
-        sprintf("- Outliers: %s", column$summary$outlier_count)
+        sprintf("- Q1 / Q3: %s / %s", column$summary$q1, column$summary$q3),
+        sprintf("- P05 / P95: %s / %s", column$summary$p05, column$summary$p95),
+        sprintf("- SD / Variance: %s / %s", column$summary$sd, column$summary$variance),
+        sprintf("- Outliers: %s", column$summary$outlier_count),
+        sprintf("- Zero / Negative values: %s / %s", column$summary$zero_count, column$summary$negative_count),
+        sprintf("- Constant / Near-zero variance: %s / %s", column$summary$constant_column, column$summary$near_zero_variance)
+      )
+    } else if (identical(column$summary$subtype, "date")) {
+      lines <- c(
+        lines,
+        sprintf("- Valid dates: %s", column$summary$valid_date_count),
+        sprintf("- Invalid dates: %s", column$summary$invalid_date_count),
+        sprintf("- Min date / Max date: %s / %s", column$summary$min_date, column$summary$max_date),
+        sprintf("- Date span (days): %s", column$summary$span_days)
       )
     } else {
       top_values <- if (length(column$summary$top_values) > 0) {
@@ -32,7 +72,17 @@ profile_to_markdown <- function(profile, title) {
       } else {
         "None"
       }
-      lines <- c(lines, sprintf("- Top values: %s", top_values))
+      lines <- c(
+        lines,
+        sprintf("- Mode: %s", column$summary$mode),
+        sprintf("- Mode frequency: %s", column$summary$mode_frequency),
+        sprintf("- Dominance ratio: %s", column$summary$dominance_ratio),
+        sprintf("- Rare categories: %s", column$summary$rare_category_count),
+        sprintf("- Entropy: %s", column$summary$entropy),
+        sprintf("- Avg / Min / Max length: %s / %s / %s", column$summary$avg_length, column$summary$min_length, column$summary$max_length),
+        sprintf("- Whitespace-only values: %s", column$summary$whitespace_only_count),
+        sprintf("- Top values: %s", top_values)
+      )
     }
 
     lines <- c(lines, "")

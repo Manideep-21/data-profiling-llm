@@ -11,54 +11,107 @@
 - Columns: 6
 - Duplicate rows: 1
 - Total missing values: 6
+- Max missing values in a row: 2
+- Average missing values per row: 0.462
+- Constant columns: None
+- Near-zero variance columns: None
+- Suggested correlated feature drops: None
 
 ### ID
 - Type: integer
+- Inferred kind: numeric
 - Missing: 0 (0.00%)
 - Unique values: 12
+- Uniqueness ratio: 0.923
+- Missing drop threshold exceeded: No
 - Mean: 6.308
 - Median: 6
 - Min / Max: 1 / 12
+- Q1 / Q3: 4 / 9
+- P05 / P95: 1.6 / 11.4
+- SD / Variance: 3.521 / 12.397
 - Outliers: 0
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ### Age
 - Type: integer
+- Inferred kind: numeric
 - Missing: 2 (15.38%)
 - Unique values: 10
+- Uniqueness ratio: 0.909
+- Missing drop threshold exceeded: No
 - Mean: 46.455
 - Median: 30
 - Min / Max: 25 / 200
+- Q1 / Q3: 27.5 / 37
+- P05 / P95: 25.5 / 120.5
+- SD / Variance: 51.214 / 2622.873
 - Outliers: 1
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ### Salary
 - Type: character
+- Inferred kind: numeric
 - Missing: 1 (7.69%)
 - Unique values: 10
+- Uniqueness ratio: 0.833
+- Missing drop threshold exceeded: No
 - Mean: 222272.545
 - Median: 50000
 - Min / Max: 45000 / 999999
+- Q1 / Q3: 48500 / 52500
+- P05 / P95: 46000 / 999999
+- SD / Variance: 384524.781 / 147859307091.073
 - Outliers: 2
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ### JoinDate
 - Type: character
+- Inferred kind: date_like
 - Missing: 0 (0.00%)
 - Unique values: 12
-- Top values: not_a_date:2, 2024-01-10:1, 2024-02-11:1, 2024-03-15:1, 2024-04-01:1
+- Uniqueness ratio: 0.923
+- Missing drop threshold exceeded: No
+- Valid dates: 11
+- Invalid dates: 2
+- Min date / Max date: 2024-01-10 / 2024-07-11
+- Date span (days): 183
 
 ### Department
 - Type: character
+- Inferred kind: categorical
 - Missing: 2 (15.38%)
 - Unique values: 6
+- Uniqueness ratio: 0.545
+- Missing drop threshold exceeded: No
+- Mode: Sales
+- Mode frequency: 4
+- Dominance ratio: 0.364
+- Rare categories: 3
+- Entropy: 2.369
+- Avg / Min / Max length: 8.364 / 2 / 25
+- Whitespace-only values: 0
 - Top values: Sales:4, Engineering:2, Support:2, HR:1, Marketing:1
 
 ### Score
 - Type: integer
+- Inferred kind: numeric
 - Missing: 1 (7.69%)
 - Unique values: 11
+- Uniqueness ratio: 0.917
+- Missing drop threshold exceeded: No
 - Mean: 83.667
 - Median: 84.5
 - Min / Max: 70 / 91
+- Q1 / Q3: 81.5 / 88
+- P05 / P95: 73.85 / 90.45
+- SD / Variance: 5.929 / 35.152
 - Outliers: 1
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ## Issues Detected
 
@@ -220,55 +273,105 @@ No highly correlated feature pairs detected above the configured threshold.
 - Columns: 6
 - Duplicate rows: 0
 - Total missing values: 1
+- Max missing values in a row: 1
+- Average missing values per row: 0.083
+- Constant columns: None
+- Near-zero variance columns: None
+- Suggested correlated feature drops: None
 
 ### ID
 - Type: integer
+- Inferred kind: numeric
 - Missing: 0 (0.00%)
 - Unique values: 12
+- Uniqueness ratio: 1
+- Missing drop threshold exceeded: No
 - Mean: 6.5
 - Median: 6.5
 - Min / Max: 1 / 12
+- Q1 / Q3: 3.75 / 9.25
+- P05 / P95: 1.55 / 11.45
+- SD / Variance: 3.606 / 13
 - Outliers: 0
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ### Age
 - Type: numeric
+- Inferred kind: numeric
 - Missing: 0 (0.00%)
 - Unique values: 10
+- Uniqueness ratio: 0.833
+- Missing drop threshold exceeded: No
 - Mean: 3.433
 - Median: 3.418
 - Min / Max: 3.25809653802148 / 3.64087023492758
+- Q1 / Q3: 3.359 / 3.481
+- P05 / P95: 3.279 / 3.641
+- SD / Variance: 0.121 / 0.015
 - Outliers: 0
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ### Salary
 - Type: numeric
+- Inferred kind: numeric
 - Missing: 0 (0.00%)
 - Unique values: 9
+- Uniqueness ratio: 0.75
+- Missing drop threshold exceeded: No
 - Mean: 10.818
 - Median: 10.82
 - Min / Max: 10.7144399907278 / 10.9151066458675
+- Q1 / Q3: 10.794 / 10.844
+- P05 / P95: 10.738 / 10.895
+- SD / Variance: 0.053 / 0.003
 - Outliers: 1
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
 ### JoinDate
 - Type: Date
+- Inferred kind: date
 - Missing: 1 (8.33%)
 - Unique values: 11
-- Mean: 19846.091
-- Median: 19852
-- Min / Max: 19732 / 19915
-- Outliers: 0
+- Uniqueness ratio: 1
+- Missing drop threshold exceeded: No
+- Valid dates: 11
+- Invalid dates: 0
+- Min date / Max date: 2024-01-10 / 2024-07-11
+- Date span (days): 183
 
 ### Department
 - Type: character
+- Inferred kind: categorical
 - Missing: 0 (0.00%)
 - Unique values: 6
+- Uniqueness ratio: 0.5
+- Missing drop threshold exceeded: No
+- Mode: Sales
+- Mode frequency: 6
+- Dominance ratio: 0.5
+- Rare categories: 4
+- Entropy: 2.126
+- Avg / Min / Max length: 7.583 / 2 / 25
+- Whitespace-only values: 0
 - Top values: Sales:6, Support:2, Engineering:1, HR:1, Marketing:1
 
 ### Score
 - Type: numeric
+- Inferred kind: numeric
 - Missing: 0 (0.00%)
 - Unique values: 11
+- Uniqueness ratio: 0.917
+- Missing drop threshold exceeded: No
 - Mean: 83.667
 - Median: 84
 - Min / Max: 74 / 91
+- Q1 / Q3: 81.5 / 86.5
+- P05 / P95: 75.65 / 90.45
+- SD / Variance: 4.997 / 24.97
 - Outliers: 0
+- Zero / Negative values: 0 / 0
+- Constant / Near-zero variance: FALSE / FALSE
 
