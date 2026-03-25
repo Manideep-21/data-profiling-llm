@@ -76,6 +76,48 @@
 - Column Score: Missing values 7.69%
 - Column Score: Outliers detected (1 values)
 
+## Correlation Analysis
+
+No highly correlated feature pairs detected above the configured threshold.
+
+![Correlation Heatmap](correlation_heatmap.png)
+
+## Visualizations
+
+### Score Comparison
+
+![Score Comparison](visualizations/score_comparison.png)
+
+### Missing Values
+
+![Missing Values](visualizations/missing_values.png)
+
+### Issue Summary
+
+![Issue Summary](visualizations/issue_summary.png)
+
+### Data Types
+
+![Data Types](visualizations/data_types.png)
+
+### Numeric Distributions
+
+![ID_distribution](visualizations/ID_distribution.png)
+![Age_distribution](visualizations/Age_distribution.png)
+![Score_distribution](visualizations/Score_distribution.png)
+
+### Box Plots
+
+![ID_boxplot](visualizations/ID_boxplot.png)
+![Age_boxplot](visualizations/Age_boxplot.png)
+![Score_boxplot](visualizations/Score_boxplot.png)
+
+### Category Bars
+
+![Salary_bar](visualizations/Salary_bar.png)
+![JoinDate_bar](visualizations/JoinDate_bar.png)
+![Department_bar](visualizations/Department_bar.png)
+
 ## LLM Suggestions
 
 ### Issue 1: Duplicate rows found: 1
@@ -86,31 +128,31 @@
 
 ### Issue 2: Column Age: Missing values 15.38%
 - Explanation: The issue 'Column Age: Missing values 15.38%' can reduce data quality or model reliability.
-- Fix options: Fill with median; Fill with mean; Remove affected rows
+- Fix options: Fill with median; Fill with mean; Fill with constant; Add missing indicator; Remove affected rows
 - Recommended: Fill with median
 - Reason: Median is robust to outliers and usually safer than the mean.
 
 ### Issue 3: Column Age: Outliers detected (1 values)
 - Explanation: The issue 'Column Age: Outliers detected (1 values)' can reduce data quality or model reliability.
-- Fix options: Cap outliers to IQR bounds; Remove outlier rows
+- Fix options: Cap outliers to IQR bounds; Winsorize extreme values; Robust scale using median and IQR; Remove outlier rows
 - Recommended: Cap outliers to IQR bounds
 - Reason: Capping keeps rows while reducing the distortion from extreme values.
 
 ### Issue 4: Column Age: Right-skewed distribution detected
 - Explanation: The issue 'Column Age: Right-skewed distribution detected' can reduce data quality or model reliability.
-- Fix options: Apply log transform; Keep as-is
+- Fix options: Apply log transform; Apply square-root transform; Bin into quantiles; Standardize values; Robust scale values; Normalize to 0-1; Keep as-is
 - Recommended: Apply log transform
 - Reason: Log transform reduces skewness while preserving ordering.
 
 ### Issue 5: Column Age: Invalid range values found
 - Explanation: The issue 'Column Age: Invalid range values found' can reduce data quality or model reliability.
-- Fix options: Replace invalid values with NA; Remove invalid rows
+- Fix options: Replace invalid values with NA; Replace invalid values with median; Clip values to valid range; Remove invalid rows
 - Recommended: Replace invalid values with NA
 - Reason: Replacing impossible values with NA avoids introducing false data.
 
 ### Issue 6: Column Salary: Missing values 7.69%
 - Explanation: The issue 'Column Salary: Missing values 7.69%' can reduce data quality or model reliability.
-- Fix options: Fill with median; Fill with mean; Remove affected rows
+- Fix options: Fill with median; Fill with mean; Fill with constant; Add missing indicator; Remove affected rows
 - Recommended: Fill with median
 - Reason: Median is robust to outliers and usually safer than the mean.
 
@@ -122,37 +164,37 @@
 
 ### Issue 8: Column Salary: Outliers detected (2 values)
 - Explanation: The issue 'Column Salary: Outliers detected (2 values)' can reduce data quality or model reliability.
-- Fix options: Cap outliers to IQR bounds; Remove outlier rows
+- Fix options: Cap outliers to IQR bounds; Winsorize extreme values; Robust scale using median and IQR; Remove outlier rows
 - Recommended: Cap outliers to IQR bounds
 - Reason: Capping keeps rows while reducing the distortion from extreme values.
 
 ### Issue 9: Column Salary: Right-skewed distribution detected
 - Explanation: The issue 'Column Salary: Right-skewed distribution detected' can reduce data quality or model reliability.
-- Fix options: Apply log transform; Keep as-is
+- Fix options: Apply log transform; Apply square-root transform; Bin into quantiles; Standardize values; Robust scale values; Normalize to 0-1; Keep as-is
 - Recommended: Apply log transform
 - Reason: Log transform reduces skewness while preserving ordering.
 
 ### Issue 10: Column JoinDate: Stored as string but looks like date
 - Explanation: The issue 'Column JoinDate: Stored as string but looks like date' can reduce data quality or model reliability.
-- Fix options: Convert to Date; Remove invalid rows
+- Fix options: Convert to Date; Convert to factor; Remove invalid rows
 - Recommended: Convert to Date
 - Reason: Date conversion enables validation and time-based analysis.
 
 ### Issue 11: Column Department: Missing values 15.38%
 - Explanation: The issue 'Column Department: Missing values 15.38%' can reduce data quality or model reliability.
-- Fix options: Fill with mode; Remove affected rows
+- Fix options: Fill with mode; Fill with constant; Add missing indicator; Remove affected rows
 - Recommended: Fill with mode
 - Reason: Mode imputation is a practical default for categorical columns.
 
 ### Issue 12: Column Score: Missing values 7.69%
 - Explanation: The issue 'Column Score: Missing values 7.69%' can reduce data quality or model reliability.
-- Fix options: Fill with median; Fill with mean; Remove affected rows
+- Fix options: Fill with median; Fill with mean; Fill with constant; Add missing indicator; Remove affected rows
 - Recommended: Fill with median
 - Reason: Median is robust to outliers and usually safer than the mean.
 
 ### Issue 13: Column Score: Outliers detected (1 values)
 - Explanation: The issue 'Column Score: Outliers detected (1 values)' can reduce data quality or model reliability.
-- Fix options: Cap outliers to IQR bounds; Remove outlier rows
+- Fix options: Cap outliers to IQR bounds; Winsorize extreme values; Robust scale using median and IQR; Remove outlier rows
 - Recommended: Cap outliers to IQR bounds
 - Reason: Capping keeps rows while reducing the distortion from extreme values.
 

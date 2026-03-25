@@ -75,6 +75,16 @@ detect_issues <- function(data) {
       )
     }
 
+    if (missing_pct >= CONFIG$missing_drop_threshold_pct) {
+      issues[[length(issues) + 1]] <- list(
+        issue_type = "high_missing_column",
+        column = name,
+        severity = "high",
+        message = sprintf("Column %s: Missing values above drop threshold (%.2f%%)", name, missing_pct),
+        details = list(missing_pct = missing_pct, threshold = CONFIG$missing_drop_threshold_pct)
+      )
+    }
+
     if (is.character(column)) {
       empty_pct <- if (length(column) == 0) 0 else round(mean(trimws(column) == "", na.rm = TRUE) * 100, 2)
       if (is.finite(empty_pct) && empty_pct > 0) {
@@ -166,6 +176,29 @@ detect_issues <- function(data) {
           details = list(unique_ratio = round(unique_ratio, 2))
         )
       }
+    }
+  }
+
+  correlation_analysis <- compute_correlation_analysis(data)
+  if (nrow(correlation_analysis$high_pairs) > 0) {
+    for (row_index in seq_len(nrow(correlation_analysis$high_pairs))) {
+      pair <- correlation_analysis$high_pairs[row_index, , drop = FALSE]
+      issues[[length(issues) + 1]] <- list(
+        issue_type = "high_correlation",
+        column = pair$feature_b[[1]],
+        severity = "medium",
+        message = sprintf(
+          "Columns %s and %s are highly correlated (%.2f)",
+          pair$feature_a[[1]],
+          pair$feature_b[[1]],
+          pair$correlation[[1]]
+        ),
+        details = list(
+          feature_a = pair$feature_a[[1]],
+          feature_b = pair$feature_b[[1]],
+          correlation = pair$correlation[[1]]
+        )
+      )
     }
   }
 

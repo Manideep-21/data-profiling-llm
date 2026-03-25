@@ -76,6 +76,33 @@ suggestions_to_markdown <- function(suggestions) {
   lines
 }
 
+correlation_to_markdown <- function(correlation_analysis) {
+  lines <- c("## Correlation Analysis", "")
+
+  if (is.null(correlation_analysis$matrix)) {
+    return(c(lines, "Not enough numeric columns to compute correlation.", ""))
+  }
+
+  if (nrow(correlation_analysis$high_pairs) == 0) {
+    lines <- c(lines, "No highly correlated feature pairs detected above the configured threshold.")
+  } else {
+    lines <- c(lines, "Highly correlated feature pairs:")
+    for (row_index in seq_len(nrow(correlation_analysis$high_pairs))) {
+      pair <- correlation_analysis$high_pairs[row_index, , drop = FALSE]
+      lines <- c(
+        lines,
+        sprintf("- %s vs %s: %.4f", pair$feature_a[[1]], pair$feature_b[[1]], pair$correlation[[1]])
+      )
+    }
+  }
+
+  if (file.exists(CONFIG$correlation_heatmap_path)) {
+    lines <- c(lines, "", sprintf("![Correlation Heatmap](%s)", basename(CONFIG$correlation_heatmap_path)))
+  }
+
+  c(lines, "")
+}
+
 fixes_to_markdown <- function(selected_fixes) {
   lines <- c("## Fixes Applied", "")
   if (length(selected_fixes) == 0) {
@@ -89,7 +116,53 @@ fixes_to_markdown <- function(selected_fixes) {
   c(lines, "")
 }
 
-generate_report <- function(profile_before, profile_after, issues, suggestions, selected_fixes, score_before, score_after, validation_result, report_path = CONFIG$report_path) {
+visualizations_to_markdown <- function(visualizations) {
+  lines <- c("## Visualizations", "")
+
+  if (!is.null(visualizations$score_comparison) && file.exists(visualizations$score_comparison)) {
+    lines <- c(lines, "### Score Comparison", "", sprintf("![Score Comparison](visualizations/%s)", basename(visualizations$score_comparison)), "")
+  }
+
+  if (!is.null(visualizations$missing_values) && file.exists(visualizations$missing_values)) {
+    lines <- c(lines, "### Missing Values", "", sprintf("![Missing Values](visualizations/%s)", basename(visualizations$missing_values)), "")
+  }
+
+  if (!is.null(visualizations$issue_summary) && file.exists(visualizations$issue_summary)) {
+    lines <- c(lines, "### Issue Summary", "", sprintf("![Issue Summary](visualizations/%s)", basename(visualizations$issue_summary)), "")
+  }
+
+  if (!is.null(visualizations$data_types) && file.exists(visualizations$data_types)) {
+    lines <- c(lines, "### Data Types", "", sprintf("![Data Types](visualizations/%s)", basename(visualizations$data_types)), "")
+  }
+
+  if (length(visualizations$numeric_distributions) > 0) {
+    lines <- c(lines, "### Numeric Distributions", "")
+    for (path in visualizations$numeric_distributions) {
+      lines <- c(lines, sprintf("![%s](visualizations/%s)", tools::file_path_sans_ext(basename(path)), basename(path)))
+    }
+    lines <- c(lines, "")
+  }
+
+  if (length(visualizations$numeric_boxplots) > 0) {
+    lines <- c(lines, "### Box Plots", "")
+    for (path in visualizations$numeric_boxplots) {
+      lines <- c(lines, sprintf("![%s](visualizations/%s)", tools::file_path_sans_ext(basename(path)), basename(path)))
+    }
+    lines <- c(lines, "")
+  }
+
+  if (length(visualizations$categorical_bars) > 0) {
+    lines <- c(lines, "### Category Bars", "")
+    for (path in visualizations$categorical_bars) {
+      lines <- c(lines, sprintf("![%s](visualizations/%s)", tools::file_path_sans_ext(basename(path)), basename(path)))
+    }
+    lines <- c(lines, "")
+  }
+
+  lines
+}
+
+generate_report <- function(profile_before, profile_after, issues, correlation_analysis, suggestions, selected_fixes, score_before, score_after, validation_result, visualizations, report_path = CONFIG$report_path) {
   dir.create(dirname(report_path), recursive = TRUE, showWarnings = FALSE)
 
   lines <- c(
@@ -102,6 +175,8 @@ generate_report <- function(profile_before, profile_after, issues, suggestions, 
     "",
     profile_to_markdown(profile_before, "Profile Before Cleaning"),
     issues_to_markdown(issues),
+    correlation_to_markdown(correlation_analysis),
+    visualizations_to_markdown(visualizations),
     suggestions_to_markdown(suggestions),
     fixes_to_markdown(selected_fixes),
     profile_to_markdown(profile_after, "Profile After Cleaning")
