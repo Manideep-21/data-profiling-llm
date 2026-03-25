@@ -26,6 +26,15 @@ load_env_file <- function(env_path = ".env") {
 
 load_env_file(".env")
 
+env_flag <- function(name, default = FALSE) {
+  value <- tolower(trimws(Sys.getenv(name, unset = "")))
+  if (value == "") {
+    return(default)
+  }
+
+  value %in% c("1", "true", "yes", "y", "on")
+}
+
 get_config <- function() {
   list(
     data_path = "data/sample_dataset.csv",
@@ -42,8 +51,8 @@ get_config <- function() {
     gemini_base_url = Sys.getenv("GEMINI_BASE_URL", unset = "https://generativelanguage.googleapis.com/v1beta/models"),
     missing_drop_threshold_pct = 40,
     correlation_threshold = 0.85,
-    auto_approve_recommended = TRUE,
-    interactive_mode = interactive()
+    auto_approve_recommended = env_flag("DQ_AUTO_APPROVE", default = FALSE),
+    interactive_mode = env_flag("DQ_INTERACTIVE_MODE", default = TRUE)
   )
 }
 

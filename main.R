@@ -15,6 +15,9 @@ source("R/visualization.R")
 dir.create(CONFIG$output_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(CONFIG$report_dir, recursive = TRUE, showWarnings = FALSE)
 
+cat(sprintf("LLM provider mode: %s\n", CONFIG$llm_provider))
+cat(sprintf("Interactive approval: %s\n", ifelse(CONFIG$interactive_mode && !CONFIG$auto_approve_recommended, "enabled", "disabled")))
+
 data <- load_data()
 profile_before <- profile_data(data)
 issues <- detect_issues(data)

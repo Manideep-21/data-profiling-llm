@@ -1,3 +1,23 @@
+read_terminal_input <- function(prompt) {
+  cat(prompt)
+  flush.console()
+  input <- readLines(file("stdin"), n = 1, warn = FALSE)
+  if (length(input) == 0) {
+    return("")
+  }
+  input[[1]]
+}
+
+choose_option <- function(item) {
+  repeat {
+    option_number <- suppressWarnings(as.integer(read_terminal_input("Choose option number: ")))
+    if (!is.na(option_number) && option_number >= 1 && option_number <= length(item$options)) {
+      return(item$options[[option_number]]$action)
+    }
+    cat("Please enter a valid option number.\n")
+  }
+}
+
 user_select <- function(suggestions, auto_approve = CONFIG$auto_approve_recommended) {
   if (length(suggestions$suggestions) == 0) {
     return(list())
@@ -18,12 +38,11 @@ user_select <- function(suggestions, auto_approve = CONFIG$auto_approve_recommen
       cat(sprintf("%d. %s%s\n", i, option$label, marker))
     }
 
-    answer <- readline("Apply recommended fix? (Y/N): ")
+    answer <- tolower(trimws(read_terminal_input("Apply recommended fix? (Y/N): ")))
     choice <- if (tolower(trimws(answer)) %in% c("y", "yes", "")) {
       item$recommended$action
     } else {
-      option_number <- as.integer(readline("Choose option number: "))
-      item$options[[option_number]]$action
+      choose_option(item)
     }
 
     selected[[length(selected) + 1]] <- list(
