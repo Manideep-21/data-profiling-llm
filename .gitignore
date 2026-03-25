@@ -1,0 +1,21 @@
+# Environment variables
+.env
+.env.*
+
+# Mac files
+.DS_Store
+
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# R files
+.Rhistory
+.RData
+.Rproj.user
+
+# Generated outputs
+reports/
