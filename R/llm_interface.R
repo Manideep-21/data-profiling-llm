@@ -2,6 +2,27 @@ format_issue_for_prompt <- function(issue) {
   sprintf("[%s] %s", issue$severity, issue$message)
 }
 
+clean_json_text <- function(text) {
+  cleaned <- trimws(text)
+  cleaned <- sub("^```json\\s*", "", cleaned)
+  cleaned <- sub("^```\\s*", "", cleaned)
+  cleaned <- sub("\\s*```$", "", cleaned)
+  cleaned
+}
+
+extract_json_block <- function(text) {
+  cleaned <- clean_json_text(text)
+  start <- regexpr("\\[", cleaned)
+  end_positions <- gregexpr("\\]", cleaned)[[1]]
+
+  if (start[1] == -1 || end_positions[1] == -1) {
+    return(cleaned)
+  }
+
+  end <- tail(end_positions, 1)
+  substr(cleaned, start[1], end)
+}
+
 build_fix_options <- function(issue) {
   switch(
     issue$issue_type,
@@ -197,17 +218,177 @@ get_mock_llm_suggestions <- function(profile, issues) {
   )
 }
 
+build_gemini_prompt <- function(profile, issues) {
+  issue_payload <- lapply(seq_along(issues), function(index) {
+    issue <- issues[[index]]
+    options <- build_fix_options(issue)
+    list(
+      issue_id = index,
+      column = issue$column,
+      issue_type = issue$issue_type,
+      severity = issue$severity,
+      message = issue$message,
+      allowed_actions = vapply(options, function(option) option$action, character(1))
+    )
+  })
+
+  prompt <- list(
+    task = "You are helping with data cleaning recommendations.",
+    instructions = c(
+      "Return only a JSON array.",
+      "For each issue, choose exactly one action from allowed_actions.",
+      "Use this schema for every item: {\"issue_id\": number, \"explanation\": string, \"recommended_action\": string, \"reason\": string}.",
+      "Do not include markdown fences."
+    ),
+    dataset_summary = list(
+      rows = profile$dataset$rows,
+      columns = profile$dataset$columns,
+      duplicate_rows = profile$dataset$duplicate_rows,
+      total_missing = profile$dataset$total_missing
+    ),
+    issues = issue_payload
+  )
+
+  jsonlite::toJSON(prompt, auto_unbox = TRUE, pretty = TRUE)
+}
+
+call_gemini_api <- function(prompt_text) {
+  endpoint <- sprintf(
+    "%s/%s:generateContent?key=%s",
+    CONFIG$gemini_base_url,
+    CONFIG$gemini_model,
+    utils::URLencode(CONFIG$llm_api_key, reserved = TRUE)
+  )
+
+  request_body <- list(
+    contents = list(
+      list(
+        parts = list(
+          list(text = prompt_text)
+        )
+      )
+    ),
+    generationConfig = list(
+      temperature = 0.2
+    )
+  )
+
+  response <- httr::POST(
+    url = endpoint,
+    body = jsonlite::toJSON(request_body, auto_unbox = TRUE),
+    httr::add_headers(`Content-Type` = "application/json"),
+    httr::timeout(60)
+  )
+
+  if (httr::http_error(response)) {
+    stop(sprintf("Gemini API request failed with status %s.", httr::status_code(response)))
+  }
+
+  parsed <- jsonlite::fromJSON(httr::content(response, as = "text", encoding = "UTF-8"), simplifyVector = FALSE)
+  candidates <- parsed$candidates
+  if (length(candidates) == 0) {
+    stop("Gemini API returned no candidates.")
+  }
+
+  parts <- candidates[[1]]$content$parts
+  text_parts <- vapply(parts, function(part) part$text %||% "", character(1))
+  paste(text_parts, collapse = "\n")
+}
+
+parse_gemini_recommendations <- function(response_text) {
+  json_block <- extract_json_block(response_text)
+  parsed <- jsonlite::fromJSON(json_block, simplifyVector = FALSE)
+
+  if (!is.list(parsed)) {
+    stop("Gemini response JSON did not contain a list.")
+  }
+
+  parsed
+}
+
+get_gemini_suggestions <- function(profile, issues) {
+  prompt_text <- build_gemini_prompt(profile, issues)
+  response_text <- call_gemini_api(prompt_text)
+  parsed_recommendations <- parse_gemini_recommendations(response_text)
+
+  suggestions <- lapply(seq_along(issues), function(index) {
+    issue <- issues[[index]]
+    options <- build_fix_options(issue)
+    default_recommendation <- recommend_best_fix(issue, options)
+    gemini_item <- NULL
+
+    for (item in parsed_recommendations) {
+      if (!is.null(item$issue_id) && as.integer(item$issue_id) == index) {
+        gemini_item <- item
+        break
+      }
+    }
+
+    recommended <- default_recommendation
+    explanation <- sprintf("The issue '%s' can reduce data quality or model reliability.", issue$message)
+    reason <- recommendation_reason(issue, recommended)
+
+    if (!is.null(gemini_item)) {
+      matched <- which(vapply(options, function(option) identical(option$action, gemini_item$recommended_action), logical(1)))
+      if (length(matched) > 0) {
+        recommended <- options[[matched[1]]]
+      }
+      if (!is.null(gemini_item$explanation)) {
+        explanation <- gemini_item$explanation
+      }
+      if (!is.null(gemini_item$reason)) {
+        reason <- gemini_item$reason
+      }
+    }
+
+    list(
+      issue_id = index,
+      issue = issue,
+      explanation = explanation,
+      options = options,
+      recommended = recommended,
+      reason = reason
+    )
+  })
+
+  list(
+    prompt_summary = list(
+      dataset_rows = profile$dataset$rows,
+      dataset_columns = profile$dataset$columns,
+      issue_count = length(issues),
+      provider = "gemini"
+    ),
+    suggestions = suggestions
+  )
+}
+
 get_llm_suggestions <- function(profile, issues) {
   mode <- tolower(CONFIG$llm_mode)
+  provider <- tolower(CONFIG$llm_provider)
 
   if (length(issues) == 0) {
     return(list(prompt_summary = list(), suggestions = list()))
   }
 
-  if (identical(mode, "mock") || identical(CONFIG$llm_api_key, "")) {
+  if (identical(mode, "mock")) {
     return(get_mock_llm_suggestions(profile, issues))
   }
 
-  warning("Live LLM mode is configured but not implemented in this offline-safe template. Falling back to mock suggestions.")
-  get_mock_llm_suggestions(profile, issues)
+  if (identical(CONFIG$llm_api_key, "")) {
+    warning("No Gemini API key found. Falling back to mock suggestions.")
+    return(get_mock_llm_suggestions(profile, issues))
+  }
+
+  if (!identical(provider, "gemini")) {
+    warning("Unsupported provider configured. Falling back to mock suggestions.")
+    return(get_mock_llm_suggestions(profile, issues))
+  }
+
+  tryCatch(
+    get_gemini_suggestions(profile, issues),
+    error = function(error) {
+      warning(sprintf("Gemini suggestion call failed: %s Falling back to mock suggestions.", conditionMessage(error)))
+      get_mock_llm_suggestions(profile, issues)
+    }
+  )
 }
