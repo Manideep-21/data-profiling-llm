@@ -38,7 +38,7 @@ env_flag <- function(name, default = FALSE) {
 
 get_config <- function() {
   list(
-    data_path = "data/sample_dataset.csv",
+    data_path = "data/dirty_dataset1.csv",
     output_dir = "output",
     report_dir = "reports",
     visualization_dir = "reports/visualizations",
