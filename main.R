@@ -50,4 +50,4 @@ utils::write.csv(cleaned_data, CONFIG$cleaned_data_path, row.names = FALSE)
 
 cat("Pipeline completed successfully.\n")
 cat(sprintf("Cleaned data saved to: %s\n", CONFIG$cleaned_data_path))
-cat(sprintf("Report saved to: %s\n", CONFIG$report_path))
+cat(sprintf("Report saved"))

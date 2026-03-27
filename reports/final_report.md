@@ -2,7 +2,7 @@
 
 - Score before cleaning: 44
 - Score after cleaning: 96
-- Score improvement: 44
+- Score improvement: 52
 - Remaining issues after validation: 5
 
 ## Profile Before Cleaning

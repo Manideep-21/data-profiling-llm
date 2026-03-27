@@ -43,7 +43,7 @@ get_config <- function() {
     report_dir = "reports",
     visualization_dir = "reports/visualizations",
     cleaned_data_path = "output/cleaned_dataset.csv",
-    report_path = "reports/final_report.md",
+    report_path = tempfile(fileext = ".md"),
     correlation_heatmap_path = "reports/correlation_heatmap.png",
     llm_mode = Sys.getenv("DQ_LLM_MODE", unset = "gemini"),
     llm_provider = Sys.getenv("DQ_LLM_PROVIDER", unset = "gemini"),
