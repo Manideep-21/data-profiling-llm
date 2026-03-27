@@ -17,8 +17,9 @@ load_env_file <- function(env_path = ".env") {
     value <- gsub("^[\"']|[\"']$", "", value)
 
     if (nzchar(key) && identical(Sys.getenv(key, unset = ""), "")) {
-      Sys.setenv(structure(value, names = key))
+      do.call(Sys.setenv, setNames(list(value), key))
     }
+
   }
 
   invisible(TRUE)

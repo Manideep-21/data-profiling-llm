@@ -1,3 +1,4 @@
+source("requirements.R")
 source("config.R")
 source("R/load_data.R")
 source("R/profiling.R")
